@@ -21,7 +21,7 @@ class AddItemActivity : AppCompatActivity() {
             val qty = editQty.text.toString().toIntOrNull() ?: 1
 
             if (name.isNotBlank()) {
-                ShoppingListData.addItem(ShoppingItem(name, qty))
+                ShoppingListData.addItem(ShoppingItem(name, qty), this)
                 Toast.makeText(this, "Produkt dodany!", Toast.LENGTH_SHORT).show()
                 finish()
             } else {

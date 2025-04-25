@@ -29,6 +29,7 @@ class ShoppingListAdapter(
                 if (position != RecyclerView.NO_POSITION) {
                     val removedItem = items[position]
                     items.removeAt(position)
+                    ShoppingListData.removeItem(removedItem, view.context)
                     notifyItemRemoved(position)
 
                     Snackbar.make(
