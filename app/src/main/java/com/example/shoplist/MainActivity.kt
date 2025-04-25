@@ -10,12 +10,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Załaduj fragment z listą
+        // Load fragment with shopping list
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, ShoppingListFragment())
             .commit()
 
-        // Fab do dodawania
+        // Floating Action Button to add new item
         findViewById<FloatingActionButton>(R.id.fab_add).setOnClickListener {
             val intent = Intent(this, AddItemActivity::class.java)
             startActivity(intent)
