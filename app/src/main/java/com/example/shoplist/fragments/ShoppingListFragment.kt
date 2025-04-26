@@ -24,7 +24,7 @@ class ShoppingListFragment : Fragment() {
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
         adapter = ShoppingListAdapter(ShoppingListData.items) { item ->
-            selectedItem = item // zapamiętaj kliknięty element
+            selectedItem = item
             val fragment = ItemDetailFragment.newInstance(item.name, item.quantity)
             parentFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)
