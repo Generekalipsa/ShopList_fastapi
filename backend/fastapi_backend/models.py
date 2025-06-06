@@ -15,6 +15,7 @@ class Item(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     quantity = Column(Integer, index=True)
+    is_purchased = Column(Boolean, default=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User")

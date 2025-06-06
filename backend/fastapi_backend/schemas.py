@@ -2,7 +2,8 @@ from pydantic import BaseModel
 
 class ItemBase(BaseModel):
     name: str
-    quantity: int
+    quantity: int   
+    is_purchased: bool = False
 
 class ItemCreate(ItemBase):
     pass
