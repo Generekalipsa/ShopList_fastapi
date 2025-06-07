@@ -11,4 +11,5 @@ object RetrofitClient {
         .build()
 
     val authApi: AuthApi = retrofit.create(AuthApi::class.java)
+    val crudApi: CrudApi = retrofit.create(CrudApi::class.java)
 }

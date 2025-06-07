@@ -5,7 +5,6 @@ import com.example.shoplist.data.LoginResponse
 import com.example.shoplist.data.RegisterRequest
 import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface AuthApi {
@@ -14,8 +13,4 @@ interface AuthApi {
 
     @POST("/auth/register")
     suspend fun register(@Body request: RegisterRequest): Response<Void>
-
-    //@GET("/items")
-   // suspend fun getCoffees(): List<Coffee>
-
 }

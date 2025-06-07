@@ -7,7 +7,7 @@ object ShoppingListData {
     var items: MutableList<ShoppingItem> = mutableListOf()
 
     fun saveIsChecked(item: ShoppingItem, context: Context) {
-        item.isChecked = !item.isChecked
+        item.is_purchased = !item.is_purchased
         ShoppingListStorage.save(context, items)
     }
 

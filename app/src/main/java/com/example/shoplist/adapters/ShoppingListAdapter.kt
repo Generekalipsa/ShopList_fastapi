@@ -31,7 +31,7 @@ class ShoppingListAdapter(
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     val item = items[position]
-                    item.isChecked = isChecked
+                    item.is_purchased = isChecked
                     ShoppingListStorage.save(itemView.context, items)
                 }
             }
@@ -64,7 +64,7 @@ class ShoppingListAdapter(
         val item = items[position]
         holder.nameView.text = item.name
         holder.qtyView.text = "Ilość: ${item.quantity}"
-        holder.checkBox.isChecked = item.isChecked
+        holder.checkBox.isChecked = item.is_purchased
     }
 
     override fun getItemCount() = items.size

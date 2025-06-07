@@ -1,5 +1,6 @@
 data class ShoppingItem(
+    val id: Int,
     val name: String,
     val quantity: Int,
-    var isChecked: Boolean = false
+    var is_purchased: Boolean = false
 )
