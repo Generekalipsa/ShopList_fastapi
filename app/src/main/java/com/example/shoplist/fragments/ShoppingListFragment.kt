@@ -1,7 +1,6 @@
 package com.example.shoplist
 
 import ShoppingItem
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -40,7 +39,7 @@ class ShoppingListFragment : Fragment() {
 
         val crudApi = RetrofitClient.getCrudApiWithToken(token)
 
-        adapter = ShoppingListAdapter(ShoppingListData.items) { item ->
+        adapter = ShoppingListAdapter(ShoppingListData.items, requireActivity()) { item ->
             selectedItem = item
             val fragment = ItemDetailFragment.newInstance(item.name, item.quantity)
             parentFragmentManager.beginTransaction()

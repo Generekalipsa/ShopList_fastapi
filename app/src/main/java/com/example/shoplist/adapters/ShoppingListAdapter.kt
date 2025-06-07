@@ -1,54 +1,97 @@
 package com.example.shoplist
 
 import ShoppingItem
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.ImageButton
-import android.widget.TextView
+import android.widget.*
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
+import com.example.shoplist.data.UpdateItemRequest
+import com.example.shoplist.network.RetrofitClient
+import kotlinx.coroutines.launch
 
 class ShoppingListAdapter(
     private val items: MutableList<ShoppingItem>,
-    private val onItemClicked: (ShoppingItem) -> Unit
-
+    private val activity: FragmentActivity,
+    private val onItemClick: (ShoppingItem) -> Unit
 ) : RecyclerView.Adapter<ShoppingListAdapter.ViewHolder>() {
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val nameView: TextView = view.findViewById(R.id.textItemName)
-        val qtyView: TextView = view.findViewById(R.id.textItemQty)
-        val deleteButton: ImageButton = view.findViewById(R.id.deleteButton)
-        val checkBox: CheckBox = view.findViewById(R.id.checkBox)
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val nameView: TextView = itemView.findViewById(R.id.textItemName)
+        private val qtyView: TextView = itemView.findViewById(R.id.textItemQty)
+        private val purchasedCheckBox: CheckBox = itemView.findViewById(R.id.checkBox)
+        private val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
 
-        init {
-            view.setOnClickListener {
-                onItemClicked(items[adapterPosition])
-            }
+        fun bind(item: ShoppingItem) {
+            nameView.text = item.name
+            qtyView.text = "Ilość: ${item.quantity}"
+            purchasedCheckBox.setOnCheckedChangeListener(null)
+            purchasedCheckBox.isChecked = item.is_purchased
 
-            checkBox.setOnCheckedChangeListener { _, isChecked ->
-                val position = adapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    val item = items[position]
-                    item.is_purchased = isChecked
-                    ShoppingListStorage.save(itemView.context, items)
+            purchasedCheckBox.setOnCheckedChangeListener { _, isChecked ->
+                if (item.is_purchased != isChecked) {
+                    updateItemPurchased(item, isChecked)
                 }
             }
 
             deleteButton.setOnClickListener {
-                val position = adapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    val removedItem = items[position]
-                    items.removeAt(position)
-                    ShoppingListData.removeItem(removedItem, view.context)
-                    notifyItemRemoved(position)
+                deleteItem(item)
+            }
+        }
 
-                    Snackbar.make(
-                        itemView,
-                        "Usunięto: ${removedItem.name}",
-                        Snackbar.LENGTH_SHORT
-                    ).show()
+        private fun updateItemPurchased(item: ShoppingItem, isPurchased: Boolean) {
+            val prefs = activity.getSharedPreferences("auth", FragmentActivity.MODE_PRIVATE)
+            val token = prefs.getString("token", null) ?: return
+            val api = RetrofitClient.getCrudApiWithToken(token)
+
+            activity.lifecycleScope.launch {
+                try {
+                    val response = api.updateItem(
+                        item.id,
+                        UpdateItemRequest(is_purchased = isPurchased)
+                    )
+                    if (response.isSuccessful) {
+                        item.is_purchased = isPurchased
+                        Toast.makeText(activity, "Zaktualizowano!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(activity, "Błąd PUT: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        // Przywróć stan checkboxa
+                        purchasedCheckBox.setOnCheckedChangeListener(null)
+                        purchasedCheckBox.isChecked = !isPurchased
+                        purchasedCheckBox.setOnCheckedChangeListener { _, checked ->
+                            updateItemPurchased(item, checked)
+                        }
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(activity, "Błąd: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("ShoppingListAdapter", "Błąd", e)
+                }
+            }
+        }
+
+        private fun deleteItem(item: ShoppingItem) {
+            val prefs = activity.getSharedPreferences("auth", FragmentActivity.MODE_PRIVATE)
+            val token = prefs.getString("token", null) ?: return
+            val api = RetrofitClient.getCrudApiWithToken(token)
+
+            activity.lifecycleScope.launch {
+                try {
+                    val response = api.deleteItem(item.id)
+                    if (response.isSuccessful) {
+                        val position = items.indexOf(item)
+                        if (position != -1) {
+                            items.removeAt(position)
+                            notifyItemRemoved(position)
+                        }
+                        Toast.makeText(activity, "Usunięto przedmiot", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(activity, "Błąd DELETE: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(activity, "Błąd: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -61,11 +104,8 @@ class ShoppingListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = items[position]
-        holder.nameView.text = item.name
-        holder.qtyView.text = "Ilość: ${item.quantity}"
-        holder.checkBox.isChecked = item.is_purchased
+        holder.bind(items[position])
     }
 
-    override fun getItemCount() = items.size
+    override fun getItemCount(): Int = items.size
 }

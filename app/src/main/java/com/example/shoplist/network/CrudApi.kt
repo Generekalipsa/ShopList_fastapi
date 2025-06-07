@@ -2,6 +2,7 @@ package com.example.shoplist.network
 
 import ShoppingItem
 import com.example.shoplist.data.AddItemRequest
+import com.example.shoplist.data.UpdateItemRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -18,7 +19,7 @@ interface CrudApi {
     suspend fun addItem(@Body request: AddItemRequest): Response<ShoppingItem>
 
     @PUT("/items/{id}")
-    suspend fun updateItem(@Path("id") id: Int, @Body updatedItem: AddItemRequest): Response<ShoppingItem>
+    suspend fun updateItem(@Path("id") id: Int, @Body updated: UpdateItemRequest): Response<ShoppingItem>
 
     @DELETE("/items/{id}")
     suspend fun deleteItem(@Path("id") id: Int): Response<Void>
