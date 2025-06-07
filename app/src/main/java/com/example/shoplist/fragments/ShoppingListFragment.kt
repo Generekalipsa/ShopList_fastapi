@@ -5,9 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.shoplist.network.RetrofitClient
+import kotlinx.coroutines.launch
 
 class ShoppingListFragment : Fragment() {
     private lateinit var adapter: ShoppingListAdapter
@@ -38,6 +42,16 @@ class ShoppingListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        adapter.notifyDataSetChanged()
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val items = RetrofitClient.crudApi.getItems()
+                ShoppingListData.items.clear()
+                ShoppingListData.items.addAll(items)
+                adapter.notifyDataSetChanged()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(requireContext(), "Błąd pobierania danych", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }
