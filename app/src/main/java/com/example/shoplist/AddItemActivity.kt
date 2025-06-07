@@ -1,5 +1,6 @@
 package com.example.shoplist
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -21,6 +22,17 @@ class AddItemActivity : AppCompatActivity() {
         val editQty = findViewById<EditText>(R.id.editItemQty)
         val button = findViewById<Button>(R.id.buttonSave)
 
+        val prefs = getSharedPreferences("auth", Context.MODE_PRIVATE)
+        val token = prefs.getString("token", null)
+
+        if (token == null) {
+            Toast.makeText(this, "Brak tokenu – zaloguj się ponownie", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+        val crudApi = RetrofitClient.getCrudApiWithToken(token)
+
         button.setOnClickListener {
             val name = editName.text.toString()
             val qty = editQty.text.toString().toIntOrNull() ?: 1
@@ -28,11 +40,10 @@ class AddItemActivity : AppCompatActivity() {
             if (name.isNotBlank()) {
                 val request = AddItemRequest(name, qty)
 
-                // Send request to server
                 lifecycleScope.launch {
                     try {
                         val response = withContext(Dispatchers.IO) {
-                            RetrofitClient.crudApi.addItem(request)
+                            crudApi.addItem(request)
                         }
 
                         if (response.isSuccessful) {

@@ -47,7 +47,7 @@ class LoginActivity : AppCompatActivity() {
                         prefs.edit().putString("token", newToken).apply()
                         Toast.makeText(this@LoginActivity, "Zalogowano", Toast.LENGTH_SHORT).show()
 
-                        // Go to MainActivity
+                        // Przejście do MainActivity
                         startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                         finish()
                     } else {

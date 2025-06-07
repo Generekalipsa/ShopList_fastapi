@@ -12,7 +12,7 @@ import retrofit2.http.Path
 
 interface CrudApi {
     @GET("/items")
-    suspend fun getItems(): List<ShoppingItem>
+    suspend fun getItems(): Response<List<ShoppingItem>>
 
     @POST("/items/")
     suspend fun addItem(@Body request: AddItemRequest): Response<ShoppingItem>
